@@ -1,47 +1,17 @@
 <?php
 
-namespace Antonioprimera\FileSystem;
-
-use Carbon\Carbon;
-use Stringable;
+namespace AntonioPrimera\FileSystem;
 
 /**
  * Represents a file in the file system
  *
  * @property-read string $folderPath
  * @property-read Folder $folder
- * @property-read string $baseName
- * @property-read string $fileName
- * @property-read string $extension
- * @property-read string $complexExtension
- * @property-read Carbon $createTime
- * @property-read Carbon $modifiedTime
  * @property-read string $contents
- * @property-read bool $exists
  */
-class File implements Stringable
+class File extends FileSystemItem
 {
-	public readonly string $originalPath;
-	
-	public function __construct(public string $path)
-	{
-		$this->originalPath = $path;
-	}
-	
-	public static function instance(string|File $path): static
-	{
-		return $path instanceof File ? $path : new static($path);
-	}
-	
 	//--- Getters -----------------------------------------------------------------------------------------------------
-	
-	/**
-	 * Absolute path to the containing folder
-	 */
-	public function getFolderPath(): string
-	{
-		return pathinfo($this->path, PATHINFO_DIRNAME);
-	}
 	
 	/**
 	 * Containing folder instance
@@ -51,62 +21,12 @@ class File implements Stringable
 		return new Folder($this->folderPath);
 	}
 	
-	/**
-	 * File name with extension
-	 */
-	public function getBaseName(): string
-	{
-		return pathinfo($this->path, PATHINFO_BASENAME);
-	}
-	
-	/**
-	 * File name without extension
-	 */
-	public function getFileName(): string
-	{
-		return pathinfo($this->path, PATHINFO_FILENAME);
-	}
-	
-	/**
-	 * File extension (without the leading dot)
-	 */
-	public function getExtension(): string
-	{
-		return strtolower(pathinfo($this->path, PATHINFO_EXTENSION));
-	}
-	
-	/**
-	 * Get the full extension of the file for files which
-	 * have a complex extension (e.g: .tar.gz or .blade.php)
-	 */
-	public function getComplexExtension(): string
-	{
-		return explode('.', $this->getBaseName(), 2)[1] ?? '';
-	}
-	
-	/**
-	 * Get the shortest file name without the complex extension
-	 */
-	public function getMinFilename(): string
-	{
-		return explode('.', $this->getBaseName(), 2)[0];
-	}
-	
-	public function getCreateTime(): Carbon
-	{
-		return new Carbon(filectime($this->path));
-	}
-	
-	public function getModifiedTime(): Carbon
-	{
-		return new Carbon(filemtime($this->path));
-	}
 	
 	public function getContents(): string
 	{
 		$contents = file_get_contents($this->path);
 		if ($contents === false)
-			throw new \Exception("Failed to read file '{$this->path}'!");
+			throw new FileSystemException("Failed to read file '{$this->path}'!");
 		
 		return $contents;
 	}
@@ -116,12 +36,23 @@ class File implements Stringable
 	/**
 	 * Renames the file
 	 */
-	public function rename(string $newFileName, bool $preserveExtension = true, bool $dryRun = false): static
+	public function rename(
+		string $newFileName,
+		bool $preserveExtension = false,
+		int $maxExtensionParts = 1,
+		bool $dryRun = false
+	): static
 	{
 		if (!$this->exists())
 			throw new FileSystemException("Rename: The file '{$this->path}' can not be renamed, because it doesn't exist!");
 		
-		$newFilePath = "{$this->folderPath}/{$newFileName}" . ($preserveExtension ? ".{$this->complexExtension}" : '');
+		$newFilePath = "{$this->folderPath}/{$newFileName}" . ($preserveExtension ? ".{$this->getExtension($maxExtensionParts)}" : '');
+		
+		if ($this->path === $newFilePath)
+			return $this;
+		
+		if (file_exists($newFilePath))
+			throw new FileSystemException("Rename: The file '{$this->path}' can not be renamed to '{$newFilePath}', because the destination file already exists!");
 		
 		if (!$dryRun)
 			rename($this->path, $newFilePath);
@@ -134,9 +65,18 @@ class File implements Stringable
 	/**
 	 * Moves the file to the given folder, keeping the same file name
 	 */
-	public function moveTo(string|Folder $targetFolder, bool $dryRun = false): static
+	public function moveTo(string|Folder $targetFolder, bool $overwrite = false, bool $dryRun = false): static
 	{
-		$newFilePath = "{$targetFolder}/{$this->baseName}";
+		$newFilePath = "{$targetFolder}/{$this->name}";
+		
+		if ($this->path === $newFilePath)
+			return $this;
+		
+		if (!is_dir((string) $targetFolder))
+			throw new FileSystemException("MoveTo: The file '{$this->path}' can not be moved to '{$newFilePath}', because the destination folder '{$targetFolder}' doesn't exist!");
+		
+		if (file_exists($newFilePath) && !$overwrite)
+			throw new FileSystemException("MoveTo: The file '{$this->path}' can not be moved to '{$newFilePath}', because the destination file already exists!");
 		
 		if (!$dryRun)
 			rename($this->path, $newFilePath);
@@ -170,17 +110,17 @@ class File implements Stringable
 		return $this;
 	}
 	
-	public function copyContentsFromFile(File $sourceFile, bool $dryRun = false): static
+	public function copyContentsFromFile(File|string $sourceFile, bool $dryRun = false): static
 	{
-		return $sourceFile->copyContentsToFile($this, $dryRun);
+		return File::instance($sourceFile)->copyContentsToFile($this, $dryRun);
 	}
 	
-	public function copyContentsToFile(File $destinationFile, bool $dryRun = false): static
+	public function copyContentsToFile(File|string $destinationFile, bool $dryRun = false): static
 	{
 		if (!$this->exists)
 			throw new FileSystemException("CopyContentsToFile: The source file '{$this->path}' doesn't exist!");
 		
-		$destinationFile->putContents($this->contents, $dryRun);
+		File::instance($destinationFile)->putContents($this->contents, $dryRun);
 		return $this;
 	}
 	
@@ -203,53 +143,11 @@ class File implements Stringable
 	
 	//--- Checks ------------------------------------------------------------------------------------------------------
 	
-	public function nameMatches(string $pattern): bool
-	{
-		return preg_match($pattern, $this->fileName);
-	}
-	
-	public function baseNameMatches(string $pattern): bool
-	{
-		return preg_match($pattern, $this->baseName);
-	}
-	
-	public function pregMatchName(string $pattern): array|false
-	{
-		$matches = [];
-		preg_match($pattern, $this->fileName, $matches);
-		return $matches;
-	}
-	
-	public function pregMatchBaseName(string $pattern): array|false
-	{
-		$matches = [];
-		preg_match($pattern, $this->baseName, $matches);
-		return $matches;
-	}
-	
 	/**
 	 * Checks if the file exists
 	 */
-	public function exists(): string|bool
+	public function exists(): bool
 	{
 		return file_exists($this->path);
-	}
-	
-	//--- Magic stuff -------------------------------------------------------------------------------------------------
-	
-	public function __toString(): string
-	{
-		return $this->path;
-	}
-	
-	public function __get(string $name): mixed
-	{
-		if (is_callable([$this, 'get' . ucfirst($name)]))
-			return call_user_func([$this, 'get' . ucfirst($name)]);
-		
-		if ($name === 'exists')
-			return $this->exists();
-		
-		return null;
 	}
 }

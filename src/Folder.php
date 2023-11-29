@@ -1,62 +1,42 @@
 <?php
 
-namespace Antonioprimera\FileSystem;
+namespace AntonioPrimera\FileSystem;
 
 /**
  * Represents a folder in the file system
  *
- * @property-read string $baseName
- * @property-read string $originalPath
- * @property-read bool $exists
  * @property-read File[] $files
  * @property-read Folder[] $folders
  * @property-read string[] $fileNames
  * @property-read string[] $folderNames
  */
-class Folder implements \Stringable
+class Folder extends FileSystemItem
 {
-	public readonly string $originalPath;
-	
 	protected array|null $cachedFileNames = null;
 	protected array|null $cachedFolderNames = null;
 	
-	public function __construct(public string $path)
-	{
-		$this->originalPath = $path;
-	}
-	
 	//--- Factories ---------------------------------------------------------------------------------------------------
-	
-	public static function instance(string|Folder $path): static
-	{
-		return $path instanceof Folder ? $path : new static($path);
-	}
 	
 	public function subFolder(string $subFolderName): static
 	{
-		return new static($this->path . DIRECTORY_SEPARATOR . $subFolderName);
+		return new static($this->mergePathParts($this->path, $subFolderName));
 	}
 	
 	public function file(string $fileName): File
 	{
-		return new File($this->path . DIRECTORY_SEPARATOR . $fileName);
+		return new File($this->mergePathParts($this->path, $fileName));
 	}
 	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	
-	public function getBaseName(): string
+	public function getFiles(bool $forceRefresh = false): array
 	{
-		return pathinfo($this->path, PATHINFO_BASENAME);
+		return array_map(fn ($fileName) => $this->file($fileName), $this->getFileNames($forceRefresh));
 	}
 	
-	public function getFiles(): array
+	public function getFolders(bool $forceRefresh = false): array
 	{
-		return array_map(fn ($fileName) => $this->file($fileName), $this->getFileNames());
-	}
-	
-	public function getFolders(): array
-	{
-		return array_map(fn ($folderName) => $this->subFolder($folderName), $this->getFolderNames());
+		return array_map(fn ($folderName) => $this->subFolder($folderName), $this->getFolderNames($forceRefresh));
 	}
 	
 	public function getFileNames(bool $forceRefresh = false): array
@@ -75,6 +55,19 @@ class Folder implements \Stringable
 		return $this->cachedFolderNames ??= $this->_getFolderNames();
 	}
 	
+	/**
+	 * Return a flat list of all files, by searching recursively through all sub-folders.
+	 */
+	public function allFiles(): array
+	{
+		$files = $this->getFiles();
+		
+		foreach ($this->getFolders() as $folder)
+			$files = array_merge($files, $folder->allFiles());
+		
+		return $files;
+	}
+	
 	//--- Folder operations -------------------------------------------------------------------------------------------
 	
 	public function create(bool $dryRun = false): static
@@ -87,7 +80,10 @@ class Folder implements \Stringable
 	
 	public function rename(string $newName, bool $dryRun = false): static
 	{
-		$newPath = dirname($this->path) . DIRECTORY_SEPARATOR . $newName;
+		if (!$this->exists())
+			throw new FileSystemException("Rename: Folder '{$this->path}' doesn't exist!");
+		
+		$newPath = $this->mergePathParts(dirname($this->path), $newName);
 		
 		if (!$dryRun)
 			rename($this->path, $newPath);
@@ -100,7 +96,7 @@ class Folder implements \Stringable
 	/**
 	 * Move this folder to the given path.
 	 */
-	public function move(string|Folder $newParentFolder, bool $dryRun = false): static
+	public function move(string|Folder $newParentFolder, bool $overwrite = false, bool $dryRun = false): static
 	{
 		$newParentFolderPath = (string) $newParentFolder;
 		
@@ -108,7 +104,10 @@ class Folder implements \Stringable
 		if (!$dryRun && !is_dir($newParentFolderPath))
 			mkdir($newParentFolderPath, recursive: true);
 		
-		$newPath = $newParentFolderPath . DIRECTORY_SEPARATOR . $this->getBaseName();
+		$newPath = $this->mergePathParts($newParentFolderPath, $this->getName());
+		
+		if (is_dir($newPath) && !$overwrite)
+			throw new FileSystemException("Move: Folder '{$this->path}' already exists in '{$newParentFolderPath}'!");
 		
 		if (!$dryRun)
 			rename($this->path, $newPath);
@@ -116,31 +115,6 @@ class Folder implements \Stringable
 		$this->path = $newPath;
 		
 		return $this;
-	}
-	
-	public function exists(): bool
-	{
-		return is_dir($this->path);
-	}
-	
-	public function hasFile(string $fileName, bool $exactMatch = true): bool
-	{
-		if ($exactMatch)
-			return file_exists($this->path . DIRECTORY_SEPARATOR . $fileName);
-		
-		//check if a file with the same name exists, regardless of the extension
-		$nameWithoutExtension = pathinfo($fileName, PATHINFO_FILENAME);
-		return count(
-			array_filter(
-				$this->getFileNames(),
-				fn ($name) => pathinfo($name, PATHINFO_FILENAME) === $nameWithoutExtension
-			)
-		) > 0;
-	}
-	
-	public function hasSubFolder(string $folderName): bool
-	{
-		return is_dir($this->path . DIRECTORY_SEPARATOR . $folderName);
 	}
 	
 	/**
@@ -154,13 +128,48 @@ class Folder implements \Stringable
 		return $this;
 	}
 	
+	//--- Checks ------------------------------------------------------------------------------------------------------
+	
+	public function exists(): bool
+	{
+		return is_dir($this->path);
+	}
+	
+	public function hasFile(string $fileName): bool
+	{
+		return file_exists($this->mergePathParts($this->path, $fileName));
+	}
+	
+	public function hasSubFolder(string $folderName): bool
+	{
+		return is_dir($this->mergePathParts($this->path, $folderName));
+	}
+	
+	public function hasFiles(array $fileNames): bool
+	{
+		foreach ($fileNames as $fileName)
+			if (!$this->hasFile($fileName))
+				return false;
+		
+		return true;
+	}
+	
+	public function hasSubFolders(array $folderNames): bool
+	{
+		foreach ($folderNames as $folderName)
+			if (!$this->hasSubFolder($folderName))
+				return false;
+		
+		return true;
+	}
+	
 	//--- Protected helpers -------------------------------------------------------------------------------------------
 	
 	protected function _getFileNames(): array
 	{
 		return array_filter(
 			scandir($this->path),
-			fn ($fileName) => !is_dir($this->path . DIRECTORY_SEPARATOR . $fileName) && !is_link($this->path . DIRECTORY_SEPARATOR . $fileName)
+			fn ($fileName) => !is_dir($filePath = $this->mergePathParts($this->path, $fileName)) && !is_link($filePath)
 		);
 	}
 	
@@ -168,28 +177,7 @@ class Folder implements \Stringable
 	{
 		return array_filter(
 			scandir($this->path),
-			fn ($fileName) => is_dir($this->path . DIRECTORY_SEPARATOR . $fileName) && !in_array($fileName, ['.', '..'])
+			fn ($fileName) => !in_array($fileName, ['.', '..']) && is_dir($this->mergePathParts($this->path, $fileName))
 		);
-	}
-	
-	//--- Magic stuff -------------------------------------------------------------------------------------------------
-	
-	public function __get(string $name)
-	{
-		if (is_callable([$this, 'get' . ucfirst($name)]))
-			return call_user_func([$this, 'get' . ucfirst($name)]);
-		
-		if ($name === 'exists')
-			return $this->exists();
-		
-		return null;
-	}
-	
-	//--- Interface implementation ------------------------------------------------------------------------------------
-	
-	//todo: add methods: create()
-	public function __toString()
-	{
-		return $this->path;
 	}
 }

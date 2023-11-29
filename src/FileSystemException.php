@@ -1,6 +1,6 @@
 <?php
 
-namespace Antonioprimera\FileSystem;
+namespace AntonioPrimera\FileSystem;
 
 class FileSystemException extends \Exception
 {
