@@ -1,0 +1,20 @@
+{
+    "name": "antonioprimera/filesystem",
+    "description": "A simple set of File and Folder classes to easily manage files and folders operations",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Antonioprimera\\FileSystem\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Antonio Primera",
+            "email": "antonio@cus.ro"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "nesbot/carbon": "^2.0"
+    }
+}
