@@ -127,8 +127,11 @@ class File extends FileSystemItem
 	/**
 	 * Replace the given [search => replace] string pairs in the file contents
 	 */
-	public function replaceInFile(array $replace): static
+	public function replaceInFile(array $replace, bool $dryRun = false): static
 	{
+		if ($dryRun)
+			return $this;
+		
 		if (!$this->exists())
 			throw new FileSystemException("ReplaceInFile: File {$this->path} does not exist.");
 		
