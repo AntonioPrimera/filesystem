@@ -128,6 +128,24 @@ class Folder extends FileSystemItem
 		return $this;
 	}
 	
+	public function delete(bool $deep = false, bool $dryRun = false): static
+	{
+		if (!$this->exists() || $dryRun)
+			return $this;
+		
+		if ($deep) {
+			foreach ($this->getFiles() as $file)
+				$file->delete($dryRun);
+			
+			foreach ($this->getFolders() as $folder)
+				$folder->delete($deep, $dryRun);
+		}
+		
+		rmdir($this->path);
+		
+		return $this;
+	}
+	
 	//--- Checks ------------------------------------------------------------------------------------------------------
 	
 	public function exists(): bool
@@ -161,6 +179,16 @@ class Folder extends FileSystemItem
 				return false;
 		
 		return true;
+	}
+	
+	public function isEmpty(bool $forceRefresh = false): bool
+	{
+		return empty($this->getFileNames($forceRefresh)) && empty($this->getFolderNames($forceRefresh));
+	}
+	
+	public function isNotEmpty(bool $forceRefresh = false): bool
+	{
+		return !$this->isEmpty($forceRefresh);
 	}
 	
 	//--- Protected helpers -------------------------------------------------------------------------------------------

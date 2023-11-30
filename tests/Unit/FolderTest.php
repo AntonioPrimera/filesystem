@@ -301,6 +301,42 @@ class FolderTest extends TestCase
 		]));
 	}
 	
+	//--- Folder contents and deletion --------------------------------------------------------------------------------
+	
+	/** @test */
+	public function it_can_say_if_it_is_empty_or_not()
+	{
+		$folder = new Folder($this->contextPath);
+		$this->assertFalse($folder->isEmpty());
+		$this->assertTrue($folder->isNotEmpty());
+		
+		$folder = new Folder($this->contextPath . '/testFolder2');
+		$this->assertTrue($folder->isEmpty());
+		$this->assertFalse($folder->isNotEmpty());
+	}
+	
+	/** @test */
+	public function it_can_delete_an_empty_folder_without_the_deep_flag()
+	{
+		$folder = new Folder($this->contextPath . '/testFolder2');
+		$this->assertTrue($folder->exists);
+		$this->assertTrue($folder->isEmpty());
+		
+		$folder->delete();
+		$this->assertFalse($folder->exists);
+	}
+	
+	/** @test */
+	public function it_can_recursively_delete_a_folder_and_its_contents_with_the_deep_flag()
+	{
+		$folder = new Folder($this->contextPath);
+		$this->assertTrue($folder->exists);
+		$this->assertFalse($folder->isEmpty());
+		
+		$folder->delete(deep: true);
+		$this->assertFalse($folder->exists);
+	}
+	
 	//--- Test context ------------------------------------------------------------------------------------------------
 	
 	protected function setupTestContext(): void
