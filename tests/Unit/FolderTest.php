@@ -376,6 +376,42 @@ class FolderTest extends TestCase
 		$this->assertCount(1, $folder->getFolders('/_x$/'));
 	}
 	
+	//--- Retrieving cached files and folders -------------------------------------------------------------------------
+	
+	/** @test */
+	public function it_can_retrieve_files_from_cache()
+	{
+		$folder = new Folder($this->contextPath . '/testFolder1');
+		
+		//cache is empty, so it will read the files from disk
+		$this->assertCount(2, $folder->getFiles(fromCache: true));
+		
+		//new file is added, but the cache is not updated
+		touch($this->contextPath . '/testFolder1/test3.txt');
+		$this->assertCount(2, $folder->getFiles(fromCache: true));
+		
+		//when reading files from disk, the cache is updated
+		$this->assertCount(3, $folder->getFiles(fromCache: false));
+		$this->assertCount(3, $folder->getFiles(fromCache: true));
+	}
+	
+	/** @test */
+	public function it_can_retrieve_folders_from_cache()
+	{
+		$folder = new Folder($this->contextPath);
+		
+		//cache is empty, so it will read the folders from disk
+		$this->assertCount(2, $folder->getFolders(fromCache: true));
+		
+		//new folder is added, but the cache is not updated
+		mkdir($this->contextPath . '/testFolder3');
+		$this->assertCount(2, $folder->getFolders(fromCache: true));
+		
+		//when reading folders from disk, the cache is updated
+		$this->assertCount(3, $folder->getFolders(fromCache: false));
+		$this->assertCount(3, $folder->getFolders(fromCache: true));
+	}
+	
 	//--- Test context ------------------------------------------------------------------------------------------------
 	
 	protected function setupTestContext(): void
