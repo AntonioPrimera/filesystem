@@ -8,6 +8,9 @@ namespace AntonioPrimera\FileSystem;
  * @property-read string $folderPath
  * @property-read Folder $folder
  * @property-read string $contents
+ * @property-read int $fileSize
+ * @property-read string $humanReadableFileSize
+ * @property-read string $hash
  */
 class File extends FileSystemItem
 {
@@ -29,6 +32,43 @@ class File extends FileSystemItem
 			throw new FileSystemException("Failed to read file '{$this->path}'!");
 		
 		return $contents;
+	}
+	
+	public function getFileSize(): int
+	{
+		return filesize($this->path);
+	}
+	
+	public function getHash(): string
+	{
+		return hash_file('sha256', $this->path);
+	}
+	
+	public function getHumanReadableFileSize(): string
+	{
+		$size = $this->getFileSize();
+		
+		if ($size < 1024)
+			return "{$size} B";
+		
+		$size /= 1024;
+		
+		if ($size < 1024)
+			return round($size, 2) . ' KB';
+		
+		$size /= 1024;
+		
+		if ($size < 1024)
+			return round($size, 2) . ' MB';
+		
+		$size /= 1024;
+		
+		if ($size < 1024)
+			return round($size, 2) . ' GB';
+		
+		$size /= 1024;
+		
+		return round($size, 2) . ' TB';
 	}
 	
 	//--- File operations ---------------------------------------------------------------------------------------------
