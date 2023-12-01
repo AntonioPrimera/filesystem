@@ -29,41 +29,44 @@ class Folder extends FileSystemItem
 	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	
-	public function getFiles(bool $forceRefresh = false): array
+	public function getFiles(mixed $filter = null, bool $fromCache = true): array
 	{
-		return array_map(fn ($fileName) => $this->file($fileName), $this->getFileNames($forceRefresh));
+		return array_map(fn ($fileName) => $this->file($fileName), $this->getFileNames($filter, $fromCache));
 	}
 	
-	public function getFolders(bool $forceRefresh = false): array
+	public function getFolders(mixed $filter = null, bool $fromCache = true): array
 	{
-		return array_map(fn ($folderName) => $this->subFolder($folderName), $this->getFolderNames($forceRefresh));
+		return array_map(fn ($folderName) => $this->subFolder($folderName), $this->getFolderNames($filter, $fromCache));
 	}
 	
-	public function getFileNames(bool $forceRefresh = false): array
+	public function getFileNames(mixed $filter = null, bool $fromCache = true): array
 	{
-		if ($forceRefresh)
-			$this->cachedFileNames = null;
+		$fileNames = $fromCache
+			? $this->cachedFileNames ??= $this->_getFileNames()	//use the cache if we have it
+			: $this->cachedFileNames = $this->_getFileNames();	//update the cache if we read the file names anyway
 		
-		return $this->cachedFileNames ??= $this->_getFileNames();
+		return $this->_filterItems($fileNames, $filter);
 	}
 	
-	public function getFolderNames(bool $forceRefresh = false): array
+	public function getFolderNames(mixed $filter = null, bool $fromCache = true): array
 	{
-		if ($forceRefresh)
-			$this->cachedFolderNames = null;
+		$folderNames = $fromCache
+			? $this->cachedFolderNames ??= $this->_getFolderNames()	//use the cache if we have it
+			: $this->cachedFolderNames = $this->_getFolderNames();	//update the cache if we read the folder names anyway
 		
-		return $this->cachedFolderNames ??= $this->_getFolderNames();
+		return $this->_filterItems($folderNames, $filter);
 	}
 	
 	/**
 	 * Return a flat list of all files, by searching recursively through all sub-folders.
 	 */
-	public function allFiles(): array
+	public function allFiles(mixed $filter = null): array
 	{
-		$files = $this->getFiles();
+		$files = $this->getFiles(filter: $filter, fromCache: false);
 		
-		foreach ($this->getFolders() as $folder)
-			$files = array_merge($files, $folder->allFiles());
+		//recursively get all files from all sub-folders (folders are not filtered and not cached)
+		foreach ($this->getFolders(fromCache: false) as $folder)
+			$files = array_merge($files, $folder->allFiles($filter));
 		
 		return $files;
 	}
@@ -207,5 +210,17 @@ class Folder extends FileSystemItem
 			scandir($this->path),
 			fn ($fileName) => !in_array($fileName, ['.', '..']) && is_dir($this->mergePathParts($this->path, $fileName))
 		);
+	}
+	
+	protected function _filterItems(array $items, mixed $filter): array
+	{
+		if (!$filter)
+			return $items;
+		
+		$filterFunction = is_callable($filter)
+			? $filter
+			: fn ($item) => preg_match($filter, $item);
+		
+		return array_filter($items, $filterFunction);
 	}
 }

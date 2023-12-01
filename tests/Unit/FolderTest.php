@@ -288,7 +288,7 @@ class FolderTest extends TestCase
 			File::instance($this->contextPath . '/testFolder1/testFolder1_1/test1_2.txt'),
 		]);
 		
-		$this->assertCount(5, $folder->getFiles(true));
+		$this->assertCount(5, $folder->getFiles(fromCache: false));
 		$this->assertCount(0, $folder->subFolder('testFolder1')->files);
 		$this->assertCount(0, $folder->subFolder('testFolder1/testFolder1_1')->files);
 		
@@ -335,6 +335,45 @@ class FolderTest extends TestCase
 		
 		$folder->delete(deep: true);
 		$this->assertFalse($folder->exists);
+	}
+	
+	//--- Retrieving filtered files and folders -----------------------------------------------------------------------
+	
+	/** @test */
+	public function it_can_retrieve_files_based_on_a_given_filter()
+	{
+		file_put_contents($this->contextPath . '/testFolder1/test3.json', '{}');
+		$folder = new Folder($this->contextPath . '/testFolder1');
+		
+		//no filter
+		$this->assertCount(3, $folder->getFiles());
+		
+		//filter is given as a closure
+		$this->assertCount(1, $folder->getFiles(fn ($fileName) => str_ends_with($fileName, '.json')));
+		$this->assertCount(2, $folder->getFiles(fn ($fileName) => str_ends_with($fileName, '.txt')));
+		
+		//filter is given as a regex
+		$this->assertCount(1, $folder->getFiles('/\.json$/'));
+		$this->assertCount(2, $folder->getFiles('/\.txt$/'));
+	}
+	
+	/** @test */
+	public function it_can_retrieve_folders_based_on_a_given_filter()
+	{
+		mkdir($this->contextPath . '/testFolder1/testFolder1_1_x');
+		mkdir($this->contextPath . '/testFolder1/testFolder1_3');
+		$folder = new Folder($this->contextPath . '/testFolder1');
+		
+		//no filter
+		$this->assertCount(3, $folder->getFolders());
+		
+		//filter is given as a closure
+		$this->assertCount(2, $folder->getFolders(fn ($folderName) => str_contains($folderName, '1_1')));
+		$this->assertCount(1, $folder->getFolders(fn ($folderName) => str_ends_with($folderName, '_x')));
+		
+		//filter is given as a regex
+		$this->assertCount(2, $folder->getFolders('/1_1/'));
+		$this->assertCount(1, $folder->getFolders('/_x$/'));
 	}
 	
 	//--- Test context ------------------------------------------------------------------------------------------------
