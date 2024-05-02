@@ -46,4 +46,32 @@ class OS
 		$cleanPath = ltrim($path);
 		return $cleanPath[0] === '/' || preg_match('/^[a-z]:/i', $cleanPath);
 	}
+	
+	public static function path(...$pathParts): string
+	{
+		$rawParts = $pathParts;			//store the raw parts for later use (never modify the function arguments)
+		$cleaner = " \n\r\t\v\0\\/";	//empty spaces and slashes
+		
+		//get the first part (being the root part, it should only be right trimmed)
+		$firstPart = array_shift($rawParts);
+		$cleanFirstPart = rtrim(self::normalizePathSeparators($firstPart), $cleaner);
+		
+		//if there are no more parts, return the cleaned first part
+		if (empty($rawParts))
+			return $cleanFirstPart;
+		
+		//clean the rest of the parts and join them together
+		$cleanParts = [$cleanFirstPart];
+		foreach ($rawParts as $part)
+			$cleanParts[] = trim(self::normalizePathSeparators($part), $cleaner);
+		
+		return implode(DIRECTORY_SEPARATOR, array_filter($cleanParts, fn($part) => $part));
+	}
+	
+	public static function normalizePathSeparators(string $path): string
+	{
+		return DIRECTORY_SEPARATOR === '/'
+			? str_replace('\\', DIRECTORY_SEPARATOR, $path)
+			: str_replace('/', DIRECTORY_SEPARATOR, $path);
+	}
 }
