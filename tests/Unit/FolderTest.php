@@ -96,14 +96,14 @@ class FolderTest extends TestCase
 	public function it_can_return_a_list_of_all_files_in_a_folder_searching_recursively_in_its_subfolders()
 	{
 		$folder = new Folder($this->contextPath);
-		$this->assertCount(5, $folder->allFiles());
+		$this->assertCount(5, $folder->getAllFiles());
 		$this->assertEmpty(array_diff([
 			$this->contextPath . '/test.txt',
 			$this->contextPath . '/testFolder1/test1.txt',
 			$this->contextPath . '/testFolder1/test2.txt',
 			$this->contextPath . '/testFolder1/testFolder1_1/test1_1.txt',
 			$this->contextPath . '/testFolder1/testFolder1_1/test1_2.txt',
-		], array_map(fn (File $file) => $file->path, $folder->allFiles())));
+		], array_map(fn (File $file) => $file->path, $folder->getAllFiles())));
 	}
 	
 	/** @test */

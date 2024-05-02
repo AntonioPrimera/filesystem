@@ -17,7 +17,7 @@ abstract class FileSystemItem implements \Stringable
 	
 	public function __construct(public string $path)
 	{
-		$this->originalPath = $path;
+		$this->originalPath = $this->normalizePath($path);
 	}
 	
 	public static function instance(string|self $path): static
@@ -81,19 +81,19 @@ abstract class FileSystemItem implements \Stringable
 	
 	public function relativePath(string $basePath): string
 	{
-		return ltrim(str_replace($basePath, '', $this->path), DIRECTORY_SEPARATOR);
+		return ltrim(str_replace($this->normalizePath($basePath), '', $this->path), DIRECTORY_SEPARATOR);
 	}
 	
 	public function relativeFolderPath(string $basePath): string
 	{
 		return dirname($this->relativePath($basePath));
 	}
-	
+
 	//--- Name checks -------------------------------------------------------------------------------------------------
 	
 	public function is(string|self $path): bool
 	{
-		return $this->path === (string) $path;
+		return $this->path === $this->normalizePath((string) $path);
 	}
 	
 	public function nameMatches(string $pattern): bool
@@ -124,6 +124,12 @@ abstract class FileSystemItem implements \Stringable
 				)
 			)
 		);
+	}
+	
+	protected function normalizePath(string $path): string
+	{
+		$cleanPath = str_replace('\\', '/', $path);
+		return str_replace('/', DIRECTORY_SEPARATOR, $cleanPath);
 	}
 	
 	//--- Abstract methods --------------------------------------------------------------------------------------------

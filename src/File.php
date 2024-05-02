@@ -86,7 +86,10 @@ class File extends FileSystemItem
 		if (!$this->exists())
 			throw new FileSystemException("Rename: The file '{$this->path}' can not be renamed, because it doesn't exist!");
 		
-		$newFilePath = "{$this->folderPath}/{$newFileName}" . ($preserveExtension ? ".{$this->getExtension($maxExtensionParts)}" : '');
+		$newFilePath = $this->folderPath
+			. DIRECTORY_SEPARATOR
+			. $newFileName
+			. ($preserveExtension ? ".{$this->getExtension($maxExtensionParts)}" : '');
 		
 		if ($this->path === $newFilePath)
 			return $this;
@@ -107,7 +110,7 @@ class File extends FileSystemItem
 	 */
 	public function moveTo(string|Folder $targetFolder, bool $overwrite = false, bool $dryRun = false): static
 	{
-		$newFilePath = "{$targetFolder}/{$this->name}";
+		$newFilePath = $targetFolder . DIRECTORY_SEPARATOR . $this->name;
 		
 		if ($this->path === $newFilePath)
 			return $this;
@@ -139,6 +142,9 @@ class File extends FileSystemItem
 	 * Add the given contents to the file, overwriting the file if
 	 * it already exists or creating it if it doesn't exist.
 	 * It creates the containing folder if necessary
+	 *
+	 * todo: file_put_contents might fail if the file is locked or if the script does not have the necessary permissions
+	 * 		check the return value of file_put_contents and handle any errors appropriately
 	 */
 	public function putContents(string $contents, bool $dryRun = false): static
 	{

@@ -60,13 +60,13 @@ class Folder extends FileSystemItem
 	/**
 	 * Return a flat list of all files, by searching recursively through all sub-folders.
 	 */
-	public function allFiles(mixed $filter = null): array
+	public function getAllFiles(mixed $filter = null): array
 	{
 		$files = $this->getFiles(filter: $filter, fromCache: false);
 		
 		//recursively get all files from all sub-folders (folders are not filtered and not cached)
 		foreach ($this->getFolders(fromCache: false) as $folder)
-			$files = array_merge($files, $folder->allFiles($filter));
+			$files = array_merge($files, $folder->getAllFiles($filter));
 		
 		return $files;
 	}
