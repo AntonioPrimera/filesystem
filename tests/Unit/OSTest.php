@@ -6,10 +6,11 @@ namespace AntonioPrimera\FileSystem\Tests\Unit;
 //use AntonioPrimera\FileSystem\Folder;
 use AntonioPrimera\FileSystem\OS;
 use AntonioPrimera\FileSystem\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class OSTest extends TestCase
 {
-	/** @test */
+	#[Test]
 	public function it_can_correctly_determine_if_a_path_is_absolute_regardless_of_the_operating_system()
 	{
 		$this->assertTrue(OS::isAbsolutePath('/home/user'));
@@ -21,7 +22,7 @@ class OSTest extends TestCase
 		$this->assertFalse(OS::isAbsolutePath('\\Users\\user'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_determine_if_a_path_is_relative_regardless_of_the_operating_system()
 	{
 		$this->assertTrue(OS::isRelativePath('home/user'));
@@ -33,7 +34,7 @@ class OSTest extends TestCase
 		$this->assertFalse(OS::isRelativePath('f:\\Users\\user'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_normalize_path_separators_in_a_path_string()
 	{
 		$expectedPath = implode(DIRECTORY_SEPARATOR, ['relative', 'path', 'to', 'fileOrFolder']);
@@ -44,7 +45,7 @@ class OSTest extends TestCase
 		$this->assertEquals($expectedPath, OS::normalizePathSeparators('relative\\path/to\\fileOrFolder'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_normalize_and_clean_up_a_single_relative_path()
 	{
 		$expectedPath = implode(DIRECTORY_SEPARATOR, ['relative', 'path', 'to', 'fileOrFolder']);
@@ -55,7 +56,7 @@ class OSTest extends TestCase
 		$this->assertEquals($expectedPath, OS::path('relative\\path/to\\fileOrFolder'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_normalize_and_clean_up_multiple_relative_path_parts()
 	{
 		$expectedPath = implode(DIRECTORY_SEPARATOR, ['relative', 'path', 'to', 'fileOrFolder']);
@@ -67,7 +68,7 @@ class OSTest extends TestCase
 		$this->assertEquals($expectedPath, OS::path('relative', 'path', 'to', 'fileOrFolder', '\\', "\t \\ "));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_normalize_and_clean_up_a_single_absolute_path()
 	{
 		$expectedPath = '/' . implode(DIRECTORY_SEPARATOR, ['absolute', 'path', 'to', 'fileOrFolder']);
@@ -78,7 +79,7 @@ class OSTest extends TestCase
 		$this->assertEquals($expectedPath, OS::path('\\absolute\\path/to\\fileOrFolder'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_correctly_normalize_and_clean_up_multiple_absolute_path_parts()
 	{
 		$expectedPath = '/' . implode(DIRECTORY_SEPARATOR, ['absolute', 'path', 'to', 'fileOrFolder']);

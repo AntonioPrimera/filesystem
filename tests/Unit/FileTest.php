@@ -5,11 +5,12 @@ use AntonioPrimera\FileSystem\File;
 use AntonioPrimera\FileSystem\FileSystemException;
 use AntonioPrimera\FileSystem\Folder;
 use AntonioPrimera\FileSystem\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class FileTest extends TestCase
 {
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_file_instance()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -18,7 +19,7 @@ class FileTest extends TestCase
 		$this->assertTrue($file->is($file2));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_name()
 	{
 		$file = new File($this->contextPath . '/test.ext1.ext2.txt');
@@ -36,7 +37,7 @@ class FileTest extends TestCase
 		$this->assertEquals('ext1.ext2.txt', $file->getExtension(4));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_folder()
 	{
 		$file = new File($this->contextPath . '/testFolder1/test1.txt');
@@ -44,7 +45,7 @@ class FileTest extends TestCase
 		$this->assertEquals($this->contextPath . '/testFolder1', $file->folder->path);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_relative_path_to_a_given_base_path()
 	{
 		$file = new File($this->contextPath . '/testFolder1/testFolder1_1/test1_1.txt');
@@ -53,7 +54,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test1_1.txt', $file->relativePath($this->contextPath . '/testFolder1/testFolder1_1'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_relative_folder_path_to_a_given_base_path()
 	{
 		$file = new File($this->contextPath . '/testFolder1/testFolder1_1/test1_1.txt');
@@ -61,7 +62,7 @@ class FileTest extends TestCase
 		$this->assertEquals('testFolder1_1', $file->relativeFolderPath($this->contextPath . '/testFolder1'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_if_it_exists()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -71,7 +72,7 @@ class FileTest extends TestCase
 		$this->assertFalse($file->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_create_and_change_time()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -82,7 +83,7 @@ class FileTest extends TestCase
 		$this->assertEquals(filemtime($this->contextPath . '/test.txt'), $file->modifiedTime);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_name_matches_regex()
 	{
 		$file = new File($this->contextPath . '/test.ext1.ext2.txt');
@@ -93,7 +94,7 @@ class FileTest extends TestCase
 		$this->assertTrue($file->nameMatches('/^test\.ext1\.ext2\.txt$/'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_return_the_matches_of_a_regex_match_check()
 	{
 		$file = new File($this->contextPath . '/test.ext1.ext2.txt');
@@ -103,7 +104,7 @@ class FileTest extends TestCase
 		$this->assertEquals(['test.ext1.ext2.txt', 'test', '.ext1.ext2', '.txt'], $file->nameMatchParts('/(^test)(.*)(\.txt$)/'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_return_its_contents()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -111,7 +112,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test', $file->getContents());
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_rename_a_file()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -120,7 +121,7 @@ class FileTest extends TestCase
 		$this->assertEquals('new-name.abc', $file->name);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_rename_a_file_preserving_its_simple_extension()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -129,7 +130,7 @@ class FileTest extends TestCase
 		$this->assertEquals('new-name.txt', $file->name);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_rename_a_file_preserving_its_complex_extension()
 	{
 		$file = new File($this->contextPath . '/test.ext1.ext2.txt');
@@ -142,7 +143,7 @@ class FileTest extends TestCase
 		$this->assertEquals('new-name-2.ext2.txt', $file->name);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_move_the_file_to_a_different_folder_path_preserving_its_name()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -155,7 +156,7 @@ class FileTest extends TestCase
 		$this->assertFalse(file_exists($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_move_the_file_to_a_different_folder_given_the_folder_instance()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -168,7 +169,7 @@ class FileTest extends TestCase
 		$this->assertFalse(file_exists($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_delete_a_file()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -179,7 +180,7 @@ class FileTest extends TestCase
 		$this->assertFalse(file_exists($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_put_contents_into_a_file()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -190,7 +191,7 @@ class FileTest extends TestCase
 		$this->assertEquals('new contents', file_get_contents($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_copy_the_contents_from_another_file_instance()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -204,7 +205,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test1', file_get_contents($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_copy_the_contents_from_another_file_given_its_string_path()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -215,7 +216,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test1', file_get_contents($this->contextPath . '/test.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_copy_its_contents_to_another_file_instance()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -229,7 +230,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test', file_get_contents($this->contextPath . '/testFolder1/test1.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_copy_its_contents_to_another_file_given_its_string_path()
 	{
 		$file = new File($this->contextPath . '/test.txt');
@@ -240,7 +241,7 @@ class FileTest extends TestCase
 		$this->assertEquals('test', file_get_contents($this->contextPath . '/testFolder1/test1.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_replace_string_parts_in_its_contents()
 	{
 		$file = new File($this->contextPath . '/replace-test.txt');
@@ -253,14 +254,14 @@ class FileTest extends TestCase
 	
 	//--- Exception tests ---------------------------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function creating_a_file_instance_for_a_non_existent_file_does_not_throw_an_exception()
 	{
 		$file = new File($this->contextPath . '/non-existent-file.txt');
 		$this->assertFalse($file->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function reading_contents_of_a_non_readable_file_throws_an_exception()
 	{
 		$file = new File($this->contextPath . '/non-readable-file.txt');
@@ -268,7 +269,7 @@ class FileTest extends TestCase
 		$file->getContents();
 	}
 	
-	/** @test */
+	#[Test]
 	public function renaming_a_non_existing_file_throws_an_exception()
 	{
 		$file = new File($this->contextPath . '/non-existent-file.txt');
@@ -276,7 +277,7 @@ class FileTest extends TestCase
 		$file->rename('new-name.txt');
 	}
 	
-	/** @test */
+	#[Test]
 	public function renaming_a_file_to_an_existing_file_name_throws_an_exception()
 	{
 		file_put_contents($this->contextPath . '/test2.txt', 'test');
@@ -285,7 +286,7 @@ class FileTest extends TestCase
 		$file->rename('test2.txt');
 	}
 	
-	/** @test */
+	#[Test]
 	public function moving_a_file_to_a_non_existent_directory_throws_an_exception()
 	{
 		$this->expectException(\Exception::class);
@@ -293,7 +294,7 @@ class FileTest extends TestCase
 		$file->moveTo($this->contextPath . '/non-existent-directory');
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_throws_an_exception_if_moving_to_a_folder_where_a_file_with_the_same_name_already_exists()
 	{
 		file_put_contents($this->contextPath . '/testFolder1/test.txt', 'test');
@@ -303,7 +304,7 @@ class FileTest extends TestCase
 		$file->moveTo($this->contextPath . '/testFolder1');
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_overwrites_an_existing_file_by_moving_it_if_requested()
 	{
 		file_put_contents($this->contextPath . '/testFolder1/test.txt', 'will be overwritten');
@@ -332,7 +333,7 @@ class FileTest extends TestCase
 		file_put_contents($this->contextPath . '/replace-test.txt', 'test1 test2 test3');
 	}
 	
-	/** @test */
+	#[Test]
 	public function the_context_setup_is_created_successfully()
 	{
 		$this->assertDirectoryExists($this->contextPath);

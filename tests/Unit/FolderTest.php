@@ -6,10 +6,11 @@ use AntonioPrimera\FileSystem\File;
 use AntonioPrimera\FileSystem\FileSystemException;
 use AntonioPrimera\FileSystem\Folder;
 use AntonioPrimera\FileSystem\Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class FolderTest extends TestCase
 {
-	/** @test */
+	#[Test]
 	public function it_can_provide_the_name_and_the_path()
 	{
 		$folder = new Folder($this->contextPath);
@@ -19,14 +20,14 @@ class FolderTest extends TestCase
 		$this->assertEquals('Context', $folder->getName());
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_parent_folder()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
 		$this->assertEquals($this->contextPath, $folder->folderPath);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_provide_create_time_and_modified_time()
 	{
 		$folder = new Folder($this->contextPath);
@@ -34,7 +35,7 @@ class FolderTest extends TestCase
 		$this->assertEquals(filemtime($this->contextPath), $folder->modifiedTime);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_that_it_is_the_same_as_another_folder_instance_or_a_string_path()
 	{
 		$folder = new Folder($this->contextPath);
@@ -43,7 +44,7 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->is($this->contextPath . '/testFolder1'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_it_exists()
 	{
 		$folder = new Folder($this->contextPath);
@@ -53,14 +54,14 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_will_not_be_determined_as_existing_if_a_file_name_is_given_instead_of_a_folder_name()
 	{
 		$folder = new Folder($this->contextPath . '/test.txt');
 		$this->assertFalse($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_folder_instance()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -68,7 +69,7 @@ class FolderTest extends TestCase
 		$this->assertInstanceOf(Folder::class, Folder::instance($this->contextPath . '/testFolder1'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_file_instance_for_a_file_inside_the_folder()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -76,7 +77,7 @@ class FolderTest extends TestCase
 		$this->assertEquals($this->contextPath . '/testFolder1/test1.txt', $folder->file('test1.txt')->path);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_file_instance_for_a_file_inside_a_subfolder_given_its_relative_path()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -84,7 +85,7 @@ class FolderTest extends TestCase
 		$this->assertEquals($this->contextPath . '/testFolder1/testFolder1_1/test1_1.txt', $folder->file('testFolder1_1/test1_1.txt')->path);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_sub_folder_instance()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -92,7 +93,7 @@ class FolderTest extends TestCase
 		$this->assertEquals($this->contextPath . '/testFolder1/testFolder1_1', $folder->subFolder('testFolder1_1')->path);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_return_a_list_of_all_files_in_a_folder_searching_recursively_in_its_subfolders()
 	{
 		$folder = new Folder($this->contextPath);
@@ -106,7 +107,7 @@ class FolderTest extends TestCase
 		], array_map(fn (File $file) => $file->path, $folder->getAllFiles())));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_relative_path_to_a_given_base_path()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1/testFolder1_1');
@@ -116,7 +117,7 @@ class FolderTest extends TestCase
 	
 	//--- Folder operations -------------------------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_can_create_a_folder_recursively()
 	{
 		$folder = new Folder($this->contextPath . '/testFolderX/testFolderX_1_1/testFolderX_1_1_1');
@@ -125,7 +126,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_will_not_throw_an_exception_if_required_to_create_an_existing_folder()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -134,7 +135,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_rename_an_existing_folder()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -147,7 +148,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_move_the_folder_to_a_different_parent_folder()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -159,7 +160,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_will_create_the_parent_folder_if_it_does_not_exist()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -170,7 +171,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_overwrite_an_already_existing_folder_with_the_same_name_when_moving_it()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -184,7 +185,7 @@ class FolderTest extends TestCase
 	
 	//--- Exceptions --------------------------------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_will_throw_an_exception_when_trying_to_rename_a_non_existing_folder()
 	{
 		$folder = new Folder($this->contextPath . '/nonExistingFolder');
@@ -194,7 +195,7 @@ class FolderTest extends TestCase
 		$folder->rename('newName');
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_will_throw_an_exception_when_moving_to_a_location_having_another_folder_with_the_same_name()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -207,7 +208,7 @@ class FolderTest extends TestCase
 	
 	//--- Folder contents ---------------------------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_it_has_a_file_by_its_name()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -217,7 +218,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->hasFile('testFolder1_1/test1_1.txt'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_it_has_a_folder_by_its_name()
 	{
 		$folder = new Folder($this->contextPath);
@@ -227,7 +228,7 @@ class FolderTest extends TestCase
 		$this->assertTrue($folder->hasSubFolder('testFolder1/testFolder1_1'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_list_of_file_names()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -235,7 +236,7 @@ class FolderTest extends TestCase
 		$this->assertEmpty(array_diff(['test1.txt', 'test2.txt'], $folder->fileNames));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_determine_the_list_of_folder_names()
 	{
 		$folder = new Folder($this->contextPath);
@@ -243,7 +244,7 @@ class FolderTest extends TestCase
 		$this->assertEmpty(array_diff(['testFolder1', 'testFolder2'], $folder->folderNames));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_a_list_of_file_instances_for_its_files()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -251,7 +252,7 @@ class FolderTest extends TestCase
 		$this->assertEmpty(array_diff(['test1.txt', 'test2.txt'], array_map(fn (File $file) => $file->name, $folder->files)));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_a_list_of_folder_instances_for_its_folders()
 	{
 		$folder = new Folder($this->contextPath);
@@ -259,7 +260,7 @@ class FolderTest extends TestCase
 		$this->assertEmpty(array_diff(['testFolder1', 'testFolder2'], array_map(fn (Folder $folder) => $folder->name, $folder->folders)));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_it_has_a_list_of_files()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -267,7 +268,7 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->hasFiles(['test1.txt', 'test2.txt', 'nonExistingFile.txt']));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_check_if_it_has_a_list_of_sub_folders()
 	{
 		$folder = new Folder($this->contextPath);
@@ -275,7 +276,7 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->hasSubFolders(['testFolder1', 'testFolder2', 'nonExistingFolder']));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_move_an_array_of_files_or_file_instances_to_itself()
 	{
 		$folder = new Folder($this->contextPath);
@@ -303,7 +304,7 @@ class FolderTest extends TestCase
 	
 	//--- Folder contents and deletion --------------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_can_say_if_it_is_empty_or_not()
 	{
 		$folder = new Folder($this->contextPath);
@@ -315,7 +316,7 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->isNotEmpty());
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_delete_an_empty_folder_without_the_deep_flag()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder2');
@@ -326,7 +327,7 @@ class FolderTest extends TestCase
 		$this->assertFalse($folder->exists);
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_recursively_delete_a_folder_and_its_contents_with_the_deep_flag()
 	{
 		$folder = new Folder($this->contextPath);
@@ -339,7 +340,7 @@ class FolderTest extends TestCase
 	
 	//--- Retrieving filtered files and folders -----------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_files_based_on_a_given_filter()
 	{
 		file_put_contents($this->contextPath . '/testFolder1/test3.json', '{}');
@@ -357,7 +358,7 @@ class FolderTest extends TestCase
 		$this->assertCount(2, $folder->getFiles('/\.txt$/'));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_folders_based_on_a_given_filter()
 	{
 		mkdir($this->contextPath . '/testFolder1/testFolder1_1_x');
@@ -378,7 +379,7 @@ class FolderTest extends TestCase
 	
 	//--- Retrieving cached files and folders -------------------------------------------------------------------------
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_files_from_cache()
 	{
 		$folder = new Folder($this->contextPath . '/testFolder1');
@@ -395,7 +396,7 @@ class FolderTest extends TestCase
 		$this->assertCount(3, $folder->getFiles(fromCache: true));
 	}
 	
-	/** @test */
+	#[Test]
 	public function it_can_retrieve_folders_from_cache()
 	{
 		$folder = new Folder($this->contextPath);
@@ -428,7 +429,7 @@ class FolderTest extends TestCase
 		file_put_contents($this->contextPath . '/testFolder1/testFolder1_1/test1_2.txt', 'test1_2');
 	}
 	
-	/** @test */
+	#[Test]
 	public function the_context_setup_is_created_successfully()
 	{
 		$this->assertDirectoryExists($this->contextPath);
