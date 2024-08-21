@@ -28,6 +28,11 @@ class OS
 		return strtoupper(substr(PHP_OS, 0, 6)) === 'DARWIN';
 	}
 	
+	public static function isMac(): bool
+	{
+		return self::isOsx();
+	}
+	
 	/**
 	 * Returns true if the current operating system is Unix based (Linux, OSX, etc.)
 	 */

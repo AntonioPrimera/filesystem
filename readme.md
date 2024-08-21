@@ -25,6 +25,9 @@ The package provides two main classes `File` and `Directory` and another helper 
 The `File` class represents a file and provides methods for reading, writing, and manipulating file contents,
 while the `Folder` class represents a directory and provides methods for working with directories.
 
+The `OS` class provides static methods for handling cross-platform path string operations, like joining paths,
+splitting paths, and normalizing paths (e.g. converting path separators to the correct format for the current OS).
+
 ### File
 
 Here are some examples of how to use the `File` class:
@@ -187,6 +190,43 @@ $isEmpty = $folder->isEmpty();
 
 // Check if the folder is not empty (contains at least one file or folder)
 $notEmpty = $folder->isNotEmpty();
+```
+
+### OS
+
+The `OS` class provides static methods for detecting the OS and handling cross-platform path string operations:
+
+```php
+use AntonioPrimera\FileSystem\OS;
+
+// Determine the current OS
+OS::isWindows();    //returns true if the current OS is Windows
+OS::isLinux();      //returns true if the current OS is Linux
+OS::isMac();        //returns true if the current OS is MacOS
+OS::isOsx();        //returns true if the current OS is MacOS
+OS::isUnix();       //returns true if the current OS is Unix (Linux or MacOS)
+
+// Determine if a string path is absolute
+OS::isAbsolutePath('/path/to/file.txt');    //returns true
+OS::isAbsolutePath('path/to/file.txt');     //returns false
+OS::isAbsolutePath('C:\path\to\file.txt');  //returns true
+
+// Cleans up paths, normalizes separators and returns correct OS specific paths
+// All the following calls return '/path/to/file.txt' on Unix and '\path\to\file.txt' on Windows
+$path = OS::path('/path/to/file.txt');
+$path = OS::path('path', 'to', 'file.txt');
+$path = OS::path('/path', '/to', '', null, '\\file.txt');
+
+// Normalizes path separators in a string path if no cleanup is needed, returns '/path/to/file.txt' on Unix, '\path\to\file.txt' on Windows
+$path = OS::normalizePathSeparators('/path/to/file.txt');
+
+// Splits a path string into an array of path parts (same result on Unix and Windows)
+// All the following calls return ['path', 'to', 'file.txt']
+$parts = OS::splitPath('/path/to/file.txt');
+$parts = OS::splitPath('\\path\\to\\file.txt');
+$parts = OS::splitPath('path/', '\\to\\', 'file.txt');                  //works with mixed separators
+$parts = OS::splitPath('path\\', '\\to\\', 'file.txt');                 //works with redundant separators
+$parts = OS::splitPath('\\path/to', '/', '', null, '\\', 'file.txt');   //works with dirty paths
 ```
 
 ## Contributing
