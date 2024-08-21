@@ -112,4 +112,22 @@ class OSTest extends TestCase
 		//works with empty parts
 		$this->assertEquals($expectedParts, OS::pathParts('\\absolute', '\\path', '/', '\\', '', ' ', null, 'to\\fileOrFolder'));
 	}
+	
+	#[Test]
+	public function it_can_handle_an_empty_path()
+	{
+		$this->assertEquals('', OS::path());
+		$this->assertEquals('', OS::path(''));
+		$this->assertEquals('', OS::path('', '', ''));
+		$this->assertEquals('', OS::path(null));
+		$this->assertEquals('', OS::path('/'));
+		$this->assertEquals('', OS::path('\\'));
+		
+		$this->assertEquals([], OS::pathParts());
+		$this->assertEquals([], OS::pathParts(''));
+		$this->assertEquals([], OS::pathParts('', '', ''));
+		$this->assertEquals([], OS::pathParts(null));
+		$this->assertEquals([], OS::pathParts('/'));
+		$this->assertEquals([], OS::pathParts('\\'));
+	}
 }

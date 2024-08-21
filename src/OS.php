@@ -59,6 +59,9 @@ class OS
 		
 		//get the first part (being the root part, it should only be right trimmed)
 		$firstPart = array_shift($rawParts);
+		if (empty($firstPart))
+			return '';
+		
 		$cleanFirstPart = rtrim(self::normalizePathSeparators($firstPart), $cleaner);
 		
 		//if there are no more parts, return the cleaned first part
@@ -87,6 +90,9 @@ class OS
 	 */
 	public static function pathParts(...$pathParts): array
 	{
-		return explode(DIRECTORY_SEPARATOR, trim(self::path(...$pathParts), DIRECTORY_SEPARATOR));
+		$path = self::path(...$pathParts);
+		return $path
+			? explode(DIRECTORY_SEPARATOR, trim($path, DIRECTORY_SEPARATOR))
+			: [];
 	}
 }
