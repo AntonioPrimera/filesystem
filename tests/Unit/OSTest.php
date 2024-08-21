@@ -90,4 +90,26 @@ class OSTest extends TestCase
 		$this->assertEquals($expectedPath, OS::path('\\absolute', 'path', 'to', 'fileOrFolder', '\\'));
 		$this->assertEquals($expectedPath, OS::path('/absolute', 'path', 'to', 'fileOrFolder', '\\', "\t \\ "));
 	}
+	
+	#[Test]
+	public function it_can_split_a_path_into_an_array_of_path_parts()
+	{
+		$expectedParts = ['absolute', 'path', 'to', 'fileOrFolder'];
+		
+		//works with forward slashes
+		$this->assertEquals($expectedParts, OS::pathParts('/absolute/path/to/fileOrFolder'));
+		
+		//works with backslashes
+		$this->assertEquals($expectedParts, OS::pathParts('\\absolute\\path\\to\\fileOrFolder'));
+		
+		//works with mixed separators
+		$this->assertEquals($expectedParts, OS::pathParts('/absolute/path\\to/fileOrFolder'));
+		$this->assertEquals($expectedParts, OS::pathParts('\\absolute\\path/to\\fileOrFolder'));
+		
+		//works with several path parts
+		$this->assertEquals($expectedParts, OS::pathParts('\\absolute', '\\path', 'to\\fileOrFolder'));
+		
+		//works with empty parts
+		$this->assertEquals($expectedParts, OS::pathParts('\\absolute', '\\path', '/', '\\', '', ' ', null, 'to\\fileOrFolder'));
+	}
 }

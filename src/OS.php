@@ -63,7 +63,7 @@ class OS
 		//clean the rest of the parts and join them together
 		$cleanParts = [$cleanFirstPart];
 		foreach ($rawParts as $part)
-			$cleanParts[] = trim(self::normalizePathSeparators($part), $cleaner);
+			$cleanParts[] = $part ? trim(self::normalizePathSeparators($part), $cleaner) : null;
 		
 		return implode(DIRECTORY_SEPARATOR, array_filter($cleanParts, fn($part) => $part));
 	}
@@ -73,5 +73,15 @@ class OS
 		return DIRECTORY_SEPARATOR === '/'
 			? str_replace('\\', DIRECTORY_SEPARATOR, $path)
 			: str_replace('/', DIRECTORY_SEPARATOR, $path);
+	}
+	
+	/**
+	 * Returns the parts of a path (or several path parts) as an array
+	 * It normalizes the path separators and merges all given
+	 * parts into a single path before splitting it
+	 */
+	public static function pathParts(...$pathParts): array
+	{
+		return explode(DIRECTORY_SEPARATOR, trim(self::path(...$pathParts), DIRECTORY_SEPARATOR));
 	}
 }
