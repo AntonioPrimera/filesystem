@@ -25,6 +25,11 @@ abstract class FileSystemItem implements \Stringable
 		return $path instanceof static ? $path : new static($path);
 	}
 	
+	public function clone(): static
+	{
+		return new static($this->path);
+	}
+	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	
 	public function getName(): string
@@ -140,8 +145,9 @@ abstract class FileSystemItem implements \Stringable
 	
 	public function __get(string $name)
 	{
-		if (is_callable([$this, 'get' . ucfirst($name)]))
-			return call_user_func([$this, 'get' . ucfirst($name)]);
+		$getter = [$this, 'get' . ucfirst($name)];
+		if (is_callable($getter))
+			return call_user_func($getter);
 		
 		if ($name === 'exists')
 			return $this->exists();

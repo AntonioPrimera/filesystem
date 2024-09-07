@@ -95,6 +95,9 @@ $size = $file->humanReadableFileSize;
 // Get the sha256 hash of the file contents
 $hash = $file->hash;
 
+// Clone the file instance (to allow for multiple operations on the same file)
+$clone = $file->clone();
+
 // Rename the file
 $file->rename(newFileName: 'new-name-without-extension', preserveExtension: true);
 
@@ -115,6 +118,21 @@ $file->copyContentsToFile(destinationFile: '/path/to/other/file.txt');
 
 // Replace any placeholders in the file contents with the given values
 $file->replaceInFile(['{name}' => 'John Doe', '__DATE__' => date('d.M.Y')]);
+
+// Create a new empty file
+$file->create();
+// OR
+$file->touch();
+
+// Check if the file contains a specific string
+$containsString = $file->contains('Hello');
+
+// Copy a file to a new location
+$file->copy('/path/to/new/file.txt', overwrite: true);
+
+// Backup the file by creating a copy in the same folder, appending .backup to the file name
+// If a backup already exists, a counter will be appended (e.g. test-file.001.backup)
+$file->backup();
 ```
 
 ### Directory

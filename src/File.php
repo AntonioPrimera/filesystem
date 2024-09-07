@@ -136,6 +136,82 @@ class File extends FileSystemItem
 		return $this;
 	}
 	
+	/**
+	 * Backup the file by copying it to a new file with the same name and the '.backup' extension
+	 * If the backup file already exists, a counter is added to the file name (e.g. original-file-name.001.backup)
+	 *
+	 * This method returns the file instance of the backup file.
+	 * Use $backupFile = $file->clone()->backup() to preserve the original file instance
+	 */
+	public function backup(bool $dryRun = false): static
+	{
+		if (!$this->exists())
+			throw new FileSystemException("Backup: The file '{$this->path}' can not be backed up, because it doesn't exist!");
+		
+		$backupPath = $this->path . '.backup';
+		
+		//make sure the backup file doesn't already exist (add a number to the file name if necessary)
+		$backupIndex = 0;
+		while (file_exists($backupPath))
+			$backupPath = $this->path
+				. '.' . str_pad(++$backupIndex, 3, '0', STR_PAD_LEFT)
+				. '.backup';
+		
+		//create the backup and copy the contents
+		$this->copy($backupPath, false, $dryRun);
+		
+		return new static($backupPath);
+	}
+	
+	public function touch(bool $dryRun = false): static
+	{
+		if ($dryRun)
+			return $this;
+		
+		if ($this->exists())
+			touch($this->path);
+		else
+			$this->create();
+		
+		return $this;
+	}
+	
+	public function create(bool $dryRun = false): static
+	{
+		if ($this->exists() || $dryRun)
+			return $this;
+		
+		$this->folder->create();
+		$this->putContents('', $dryRun);
+		return $this;
+	}
+	
+	/**
+	 * Copy a file to a new location and return the newly copied file instance
+	 * Use $fileCopy = $file->clone()->copy($newPath) to preserve the original file instance
+	 */
+	public function copy(string|self $targetFile, bool $overwrite = false, bool $dryRun = false): static
+	{
+		if (!$this->exists())
+			throw new FileSystemException("Copy: The file '{$this->path}' can not be copied, because it doesn't exist!");
+		
+		$targetFile = File::instance($targetFile);
+		
+		if ($this->path === $targetFile->path)
+			throw new FileSystemException("Copy: The file '{$this->path}' can not be copied to '{$targetFile->path}', because it's the same file!");
+		
+		if ($targetFile->exists && !$overwrite)
+			throw new FileSystemException("Copy: The file '{$this->path}' can not be copied to '{$targetFile->path}', because the destination file already exists!");
+		
+		if ($dryRun)
+			return $this;
+		
+		$targetFile->folder->create();
+		copy($this->path, $targetFile->path);
+		
+		return $targetFile;
+	}
+	
 	//--- File contents management ------------------------------------------------------------------------------------
 	
 	/**
@@ -188,6 +264,11 @@ class File extends FileSystemItem
 		
 		$this->putContents($contents);
 		return $this;
+	}
+	
+	public function contains(string $search): bool
+	{
+		return str_contains($this->contents, $search);
 	}
 	
 	//--- Checks ------------------------------------------------------------------------------------------------------

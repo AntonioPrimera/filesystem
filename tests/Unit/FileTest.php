@@ -315,6 +315,96 @@ class FileTest extends TestCase
 		$this->assertEquals('test', file_get_contents($this->contextPath . '/testFolder1/test.txt'));
 	}
 	
+	#[Test]
+	public function it_can_copy_a_file_to_another_file()
+	{
+		$file = File::instance($this->contextPath . '/test.txt')->putContents('abc');
+		$targetFilePath = $this->contextPath . '/new-sub-folder/test-copy.txt';
+		$copiedFile = $file->clone()->copy($targetFilePath);
+		
+		//$this->assertTrue(file_exists($this->contextPath . '/test.txt'));
+		$this->assertEquals($targetFilePath, $copiedFile->path);
+		$this->assertEquals('abc', $file->contents);
+		$this->assertTrue($copiedFile->exists);
+		$this->assertEquals('abc', $copiedFile->contents);
+	}
+	
+	#[Test]
+	public function it_creates_a_backup_of_an_existing_file()
+	{
+		$file = File::instance($this->contextPath . '/test.txt')->putContents('abc');
+		$backupFile = $file->clone()->backup();
+		
+		$this->assertTrue($file->path === $this->contextPath . '/test.txt');
+		$this->assertTrue($file->exists);
+		$this->assertTrue($file->contains('abc'));
+		
+		$this->assertEquals($this->contextPath . '/test.txt.backup', $backupFile->path);
+		$this->assertTrue($backupFile->exists);
+		$this->assertTrue($backupFile->contains('abc'));
+	}
+	
+	#[Test]
+	public function it_generates_a_unique_backup_file_name_if_a_backup_file_already_exists()
+	{
+		$file = File::instance($this->contextPath . '/test.txt')->putContents('abc');
+		$backupFile = $file->clone()->backup();
+		
+		$this->assertTrue($backupFile->path === $this->contextPath . '/test.txt.backup');
+		$this->assertTrue($backupFile->exists && $backupFile->contains('abc'));
+		
+		$file->putContents('def');
+		$backupFile001 = $file->clone()->backup();
+		
+		$this->assertTrue($backupFile->exists && $backupFile->contains('abc'));
+		
+		$this->assertEquals($this->contextPath . '/test.txt.001.backup', $backupFile001->path);
+		$this->assertTrue($backupFile001->exists && $backupFile001->contains('def'));
+		
+		$file->putContents('ghi');
+		$backupFile002 = $file->clone()->backup();
+		
+		$this->assertTrue($backupFile->exists && $backupFile->contains('abc'));
+		$this->assertTrue($backupFile001->exists && $backupFile001->contains('def'));
+		
+		$this->assertEquals($this->contextPath . '/test.txt.002.backup', $backupFile002->path);
+		$this->assertTrue($backupFile002->exists && $backupFile002->contains('ghi'));
+	}
+	
+	#[Test]
+	public function it_can_create_a_new_empty_file()
+	{
+		$file = new File($this->contextPath . '/new-file.txt');
+		$this->assertFalse($file->exists);
+		
+		$file->create();
+		
+		$this->assertTrue($file->exists);
+		$this->assertEquals('', file_get_contents($this->contextPath . '/new-file.txt'));
+	}
+	
+	#[Test]
+	public function it_can_create_a_new_file_using_touch()
+	{
+		$file = new File($this->contextPath . '/new-file.txt');
+		$this->assertFalse($file->exists);
+		
+		$file->touch();
+		
+		$this->assertTrue($file->exists);
+		$this->assertEquals('', file_get_contents($this->contextPath . '/new-file.txt'));
+	}
+	
+	#[Test]
+	public function it_can_clone_a_file_instance_using_the_clone_function()
+	{
+		$file = new File($this->contextPath . '/test.txt');
+		$clone = $file->clone();
+		
+		$this->assertTrue($file->path === $clone->path);
+		$this->assertFalse($file === $clone);
+	}
+	
 	//--- Test context ------------------------------------------------------------------------------------------------
 	
 	protected function setupTestContext(): void
