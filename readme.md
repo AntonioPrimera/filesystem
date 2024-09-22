@@ -210,6 +210,36 @@ $isEmpty = $folder->isEmpty();
 $notEmpty = $folder->isNotEmpty();
 ```
 
+### Zipping and Unzipping Files and Folders
+
+The `File` and `Folder` classes provide methods for zipping and unzipping files and folders:
+
+```php
+use AntonioPrimera\FileSystem\File;
+use AntonioPrimera\FileSystem\Folder;
+
+// Zip a file to a zip archive named the same as the file with the .zip extension
+$file = File::instance('/path/to/file.txt')->zip();     //creates /path/to/file.txt.zip
+
+// Zip a file to a specific zip archive and return the archive File instance
+$file = File::instance('/path/to/file.txt')->zipTo('/path/to/archive.zip');
+
+// Unzip a zip archive to the same folder as the archive and return the parent Folder instance
+$folder = File::instance('/path/to/archive.zip')->unzip();    //creates /path/to/archive/
+
+// Unzip a zip archive to a specific folder and return the target Folder instance
+$folder = File::instance('/path/to/archive.zip')->unzipTo('/path/to/destination/');
+
+// Zip a folder to an archive named the same as the folder with the .zip extension
+$folder = Folder::instance('/path/to/folder')->zip();    //creates /path/to/folder.zip
+
+// Zip a folder to a specific archive and return the archive File instance
+$file = Folder::instance('/path/to/folder')->zipTo('/specific/path/to/archive.zip');
+
+// Zip a folder, excluding the root folder (only the contents are zipped)
+$file = Folder::instance('/path/to/folder')->zipTo('/specific/path/to/archive.zip', includeRoot: false);
+$file = Folder::instance('/path/to/folder')->zip(includeRoot: false);
+```
 ### OS
 
 The `OS` class provides static methods for detecting the OS and handling cross-platform path string operations:

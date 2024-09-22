@@ -3,9 +3,8 @@ namespace AntonioPrimera\FileSystem\Traits;
 
 use AntonioPrimera\FileSystem\FileSystemException;
 use AntonioPrimera\FileSystem\Folder;
-use ZipArchive;
 
-trait HandlesZipFiles
+trait UnzipsFiles
 {
 	use UsesZipExtension;
 	

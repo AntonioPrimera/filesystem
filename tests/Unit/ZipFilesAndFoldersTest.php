@@ -1,5 +1,4 @@
 <?php
-
 use AntonioPrimera\FileSystem\File;
 use AntonioPrimera\FileSystem\FileSystemException;
 use AntonioPrimera\FileSystem\Folder;
@@ -65,13 +64,30 @@ it ('can zip and unzip a folder', function () {
 	$folderToZip->file('test5.txt')->putContents('I will be zipped 5');
 	$folderToZip->file('/sub-folder/test6.txt')->putContents('I will be zipped 6');
 	
-	//zip the folder
+	//zip the folder with the root folder
 	$zipFile = $folderToZip->zipTo($this->sandbox->file('zipped-folder-1.zip'));
 	expect($zipFile)->toBeInstanceOf(File::class)
 		->and($zipFile->exists())->toBeTrue();
 	
-	//unzip the folder
-	$unzipFolder = $zipFile->unzipTo($this->sandbox->subFolder('unzipped-folder-1'));
+	//unzip the archive with the root folder
+	$unzipFolder = $zipFile->unzipTo($this->sandbox->subFolder('unzip-parent-folder-1'));
+	expect($unzipFolder)->toBeInstanceOf(Folder::class)
+		->and($unzipFolder->exists())->toBeTrue()
+		->and($unzipFolder->subFolder('folder-to-zip')->exists())->toBeTrue()
+		->and($unzipFolder->subFolder('folder-to-zip')->file('test4.txt')->exists())->toBeTrue()
+		->and($unzipFolder->subFolder('folder-to-zip')->file('test4.txt')->contents)->toBe('I will be zipped 4')
+		->and($unzipFolder->subFolder('folder-to-zip')->file('test5.txt')->exists())->toBeTrue()
+		->and($unzipFolder->subFolder('folder-to-zip')->file('test5.txt')->contents)->toBe('I will be zipped 5')
+		->and($unzipFolder->subFolder('folder-to-zip')->subFolder('sub-folder')->file('test6.txt')->exists())->toBeTrue()
+		->and($unzipFolder->subFolder('folder-to-zip')->subFolder('sub-folder')->file('test6.txt')->contents)->toBe('I will be zipped 6');
+	
+	//zip the folder without the root folder in the archive
+	$zipFile = $folderToZip->zipTo($this->sandbox->file('zipped-folder-2.zip'), false);
+	expect($zipFile)->toBeInstanceOf(File::class)
+		->and($zipFile->exists())->toBeTrue();
+	
+	//unzip the archive including the root folder
+	$unzipFolder = $zipFile->unzipTo($this->sandbox->subFolder('unzip-parent-folder-2'));
 	expect($unzipFolder)->toBeInstanceOf(Folder::class)
 		->and($unzipFolder->exists)->toBeTrue()
 		->and($unzipFolder->file('test4.txt')->exists())->toBeTrue()

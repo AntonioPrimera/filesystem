@@ -3,7 +3,7 @@
 namespace AntonioPrimera\FileSystem;
 
 use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
-use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
+use AntonioPrimera\FileSystem\Traits\ZipsFolders;
 
 /**
  * Represents a folder in the file system
@@ -15,7 +15,7 @@ use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
  */
 class Folder extends FileSystemItem
 {
-	use CommonApiMethods, ZipsFilesAndFolders;
+	use CommonApiMethods, ZipsFolders;
 	
 	protected array|null $cachedFileNames = null;
 	protected array|null $cachedFolderNames = null;

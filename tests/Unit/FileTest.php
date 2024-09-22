@@ -436,6 +436,16 @@ it('will do nothing when moving a file to another fi', function() {
 	expect($file->moveTo($this->sandboxPath) === $file)->toBeTrue();
 });
 
+it('can return the absolute path to a file', function() {
+	$file = File::instance($this->sandboxPath . '/test.txt');
+	expect($file->realPath)->toEqual($this->sandboxPath . '/test.txt');
+});
+
+it('will return false for the realpath if the file does not exist', function() {
+	$file = File::instance($this->sandboxPath . '/non-existent-file-07.txt');
+	expect($file->realPath)->toBeFalse();
+});
+
 //--- Test context ------------------------------------------------------------------------------------------------
 function setupFileTestContext(string $contextPath) : void
 {

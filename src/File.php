@@ -3,8 +3,8 @@
 namespace AntonioPrimera\FileSystem;
 
 use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
-use AntonioPrimera\FileSystem\Traits\HandlesZipFiles;
-use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
+use AntonioPrimera\FileSystem\Traits\UnzipsFiles;
+use AntonioPrimera\FileSystem\Traits\ZipsFiles;
 
 /**
  * Represents a file in the file system
@@ -18,7 +18,7 @@ use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
  */
 class File extends FileSystemItem
 {
-	use CommonApiMethods, HandlesZipFiles, ZipsFilesAndFolders;
+	use CommonApiMethods, UnzipsFiles, ZipsFiles;
 	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	

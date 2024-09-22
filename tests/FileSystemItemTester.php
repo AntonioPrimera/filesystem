@@ -3,15 +3,15 @@ namespace AntonioPrimera\FileSystem\Tests;
 
 use AntonioPrimera\FileSystem\FileSystemItem;
 use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
-use AntonioPrimera\FileSystem\Traits\HandlesZipFiles;
-use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
+use AntonioPrimera\FileSystem\Traits\UnzipsFiles;
+use AntonioPrimera\FileSystem\Traits\ZipsFiles;
 
 /**
  * @method string _mergePathParts(...$parts)
  */
 class FileSystemItemTester extends FileSystemItem
 {
-	use CommonApiMethods, HandlesZipFiles, ZipsFilesAndFolders;
+	use CommonApiMethods, UnzipsFiles, ZipsFiles;
 	
 	public function exists(): bool
 	{

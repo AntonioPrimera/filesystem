@@ -19,11 +19,11 @@
         }
     ],
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
 		"ext-zip": "*"
 	},
     "require-dev": {
-        "pestphp/pest": "^2.35",
+        "pestphp/pest": "^v3.1.0",
         "spatie/ray": "^1.41"
     },
     "scripts": {
