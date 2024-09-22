@@ -8,8 +8,10 @@ namespace AntonioPrimera\FileSystem;
  * @property-read string $nameWithoutExtension
  * @property-read string $extension
  * @property-read string $folderPath
+ * @property-read string $parentFolderPath
  * @property-read false|int $createTime
  * @property-read false|int $modifiedTime
+ * @property-read string|false $realPath
  */
 abstract class FileSystemItem implements \Stringable
 {
@@ -69,7 +71,15 @@ abstract class FileSystemItem implements \Stringable
 	 */
 	public function getFolderPath(): string
 	{
-		return pathinfo($this->path, PATHINFO_DIRNAME);
+		return dirname($this->path);
+	}
+	
+	/**
+	 * Absolute path to the parent folder (same as getFolderPath(), but with a more descriptive name)
+	 */
+	public function getParentFolderPath(): string
+	{
+		return dirname($this->path);
 	}
 	
 	public function getCreateTime(): false|int
@@ -80,6 +90,11 @@ abstract class FileSystemItem implements \Stringable
 	public function getModifiedTime(): false|int
 	{
 		return filemtime($this->path);
+	}
+	
+	public function getRealPath(): string|false
+	{
+		return realpath($this->path);
 	}
 	
 	//--- Path operations ---------------------------------------------------------------------------------------------

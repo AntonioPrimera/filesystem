@@ -3,14 +3,13 @@ namespace AntonioPrimera\FileSystem\Tests;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
-	protected string $contextPath = __DIR__ . '/Context';
+	protected string $sandboxPath = __DIR__ . '/Sandbox';
 	
 	protected function setUp(): void
 	{
 		parent::setUp();
 		$this->cleanupContextFolder();
 		$this->createContextFolder();
-		$this->setupTestContext();
 	}
 	
 	protected function tearDown(): void
@@ -21,17 +20,12 @@ class TestCase extends \PHPUnit\Framework\TestCase
 	
 	//--- Context setup -----------------------------------------------------------------------------------------------
 	
-	protected function setupTestContext()
-	{
-		//override this in your test classes to set up the test context
-	}
-	
 	protected function createContextFolder(): void
 	{
-		if (!is_dir($this->contextPath))
-			mkdir($this->contextPath);
+		if (!is_dir($this->sandboxPath))
+			mkdir($this->sandboxPath);
 		
-		$this->assertDirectoryExists($this->contextPath);
+		$this->assertDirectoryExists($this->sandboxPath);
 	}
 	
 	//--- Context cleanup ---------------------------------------------------------------------------------------------
@@ -39,7 +33,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 	protected function cleanupContextFolder(): void
 	{
 		//delete all files and folders in the context folder
-		$this->deleteFolder($this->contextPath);
+		$this->deleteFolder($this->sandboxPath);
 	}
 	
 	//--- Protected helpers -------------------------------------------------------------------------------------------

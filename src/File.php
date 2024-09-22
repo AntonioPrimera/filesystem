@@ -2,6 +2,10 @@
 
 namespace AntonioPrimera\FileSystem;
 
+use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
+use AntonioPrimera\FileSystem\Traits\HandlesZipFiles;
+use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
+
 /**
  * Represents a file in the file system
  *
@@ -14,19 +18,24 @@ namespace AntonioPrimera\FileSystem;
  */
 class File extends FileSystemItem
 {
+	use CommonApiMethods, HandlesZipFiles, ZipsFilesAndFolders;
+	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	
 	/**
-	 * Containing folder instance
+	 * Containing folder instance.
+	 * Same as getParentFolder() or $parentFolder (from the CommonApiMethods trait)
 	 */
 	public function getFolder(): Folder
 	{
 		return new Folder($this->folderPath);
 	}
 	
-	
 	public function getContents(): string
 	{
+		if (!$this->exists())
+			throw new FileSystemException("The file '{$this->path}' does not exist!");
+		
 		$contents = file_get_contents($this->path);
 		if ($contents === false)
 			throw new FileSystemException("Failed to read file '{$this->path}'!");
@@ -110,9 +119,12 @@ class File extends FileSystemItem
 	 */
 	public function moveTo(string|Folder $targetFolder, bool $overwrite = false, bool $dryRun = false): static
 	{
-		$newFilePath = $targetFolder . DIRECTORY_SEPARATOR . $this->name;
+		if (!$this->exists())
+			throw new FileSystemException("MoveTo: The file '{$this->path}' can not be moved, because it doesn't exist!");
 		
-		if ($this->path === $newFilePath)
+		$newFilePath = Folder::instance($targetFolder)->file($this->name);
+		
+		if ($this->path === $newFilePath->path)
 			return $this;
 		
 		if (!is_dir((string) $targetFolder))
@@ -251,11 +263,11 @@ class File extends FileSystemItem
 	 */
 	public function replaceInFile(array $replace, bool $dryRun = false): static
 	{
-		if ($dryRun)
-			return $this;
-		
 		if (!$this->exists())
 			throw new FileSystemException("ReplaceInFile: File {$this->path} does not exist.");
+		
+		if ($dryRun)
+			return $this;
 		
 		$contents = $this->getContents();
 		
@@ -278,6 +290,6 @@ class File extends FileSystemItem
 	 */
 	public function exists(): bool
 	{
-		return file_exists($this->path);
+		return is_file($this->path);
 	}
 }

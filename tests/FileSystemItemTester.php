@@ -1,14 +1,17 @@
 <?php
-
 namespace AntonioPrimera\FileSystem\Tests;
 
 use AntonioPrimera\FileSystem\FileSystemItem;
+use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
+use AntonioPrimera\FileSystem\Traits\HandlesZipFiles;
+use AntonioPrimera\FileSystem\Traits\ZipsFilesAndFolders;
 
 /**
  * @method string _mergePathParts(...$parts)
  */
 class FileSystemItemTester extends FileSystemItem
 {
+	use CommonApiMethods, HandlesZipFiles, ZipsFilesAndFolders;
 	
 	public function exists(): bool
 	{
