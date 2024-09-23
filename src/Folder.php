@@ -32,6 +32,24 @@ class Folder extends FileSystemItem
 		return new File($this->mergePathParts($this->path, $fileName));
 	}
 	
+	public function closest(string $folderName): Folder
+	{
+		//the current folder must exist, before we can search for the closest folder
+		$realPath = realpath($this->path);
+		if (!$realPath)
+			throw new FileSystemException("Can not find the closest folder '{$folderName}' because the folder '{$this->path}' doesn't exist!");
+		
+		//search the first occurence of the folder in the path, starting from the current folder
+		$position = strpos($realPath, DIRECTORY_SEPARATOR . $folderName);
+		if ($position === false)
+			throw new FileSystemException("Can not find the closest folder '{$folderName}' in '{$this->path}'!");
+		
+		//get the path to the closest folder
+		$closestFolderPath = substr($realPath, 0, $position + strlen(DIRECTORY_SEPARATOR . $folderName));
+		
+		return new static($closestFolderPath);
+	}
+	
 	//--- Getters -----------------------------------------------------------------------------------------------------
 	
 	public function getFiles(mixed $filter = null, bool $fromCache = true): array

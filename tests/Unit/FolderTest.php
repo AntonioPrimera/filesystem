@@ -338,6 +338,22 @@ it('can retrieve folders from cache', function () {
 		->and($folder->getFolders(fromCache: true))->toHaveCount(3);
 });
 
+it('can determine the closest folder in a hierarchy', function () {
+	//happy path
+	expect(Folder::instance(__DIR__)->closest('tests')->realPath)->toEqual(realpath(__DIR__ . '/../../tests'))
+		->and(Folder::instance(__DIR__)->closest('Unit')->realPath)->toEqual(realpath(__DIR__ . '/../Unit'))
+		
+		//works with a combination of folders (not just a folder name)
+		->and(Folder::instance(__DIR__)->closest('tests/Unit')->realPath)->toEqual(realpath(__DIR__ . '/../../tests/Unit'))
+		
+		//will throw an exception if the folder does not exist
+		->and(fn() => Folder::instance('/a/b/c/d')->closest('b')->path)->toThrow(FileSystemException::class)
+		
+		//will throw an exception if the folder is not found
+		->and(fn() => Folder::instance(__DIR__)->closest('nonExistingFolder')->path)->toThrow(FileSystemException::class)
+		->and(fn() => Folder::instance(__DIR__)->closest('tests/NonExisting')->realPath)->toThrow(FileSystemException::class);
+});
+
 //--- Test context ------------------------------------------------------------------------------------------------
 
 function setupFolderTestContext(string $contextPath) : void

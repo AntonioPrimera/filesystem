@@ -141,7 +141,7 @@ Below are some examples of how to use the `Directory` class. The generic methods
 because both classes extend the same FileSystemItem class.
 
 ```php
-use AntonioPrimera\FileSystem\Directory;
+use AntonioPrimera\FileSystem\Folder;
 
 // --- Methods specific to the Folder class ---
 
@@ -208,6 +208,10 @@ $isEmpty = $folder->isEmpty();
 
 // Check if the folder is not empty (contains at least one file or folder)
 $notEmpty = $folder->isNotEmpty();
+
+// Go up the folder hierarchy and find the first folder that has a specific name
+//e.g. instead of '__DIR__ . '/../../../../parent-folder-name'
+$parentFolder = Folder::instance(__DIR__)->closest('parent-folder-name');
 ```
 
 ### Zipping and Unzipping Files and Folders
@@ -250,9 +254,9 @@ use AntonioPrimera\FileSystem\OS;
 // Determine the current OS
 OS::isWindows();    //returns true if the current OS is Windows
 OS::isLinux();      //returns true if the current OS is Linux
-OS::isMac();        //returns true if the current OS is MacOS
-OS::isOsx();        //returns true if the current OS is MacOS
-OS::isUnix();       //returns true if the current OS is Unix (Linux or MacOS)
+OS::isMac();        //returns true if the current OS is macOS
+OS::isOsx();        //returns true if the current OS is macOS
+OS::isUnix();       //returns true if the current OS is Unix (Linux or macOS)
 
 // Determine if a string path is absolute
 OS::isAbsolutePath('/path/to/file.txt');    //returns true
