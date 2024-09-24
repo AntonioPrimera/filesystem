@@ -10,7 +10,10 @@
     "autoload-dev": {
         "psr-4": {
             "AntonioPrimera\\FileSystem\\Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {

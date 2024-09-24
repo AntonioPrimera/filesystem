@@ -281,6 +281,15 @@ $parts = OS::splitPath('path\\', '\\to\\', 'file.txt');                 //works 
 $parts = OS::splitPath('\\path/to', '/', '', null, '\\', 'file.txt');   //works with dirty paths
 ```
 
+### Helper Functions
+
+The package also provides some helper functions for working with files and directories:
+
+```php
+// A shorthand function for creating a new Folder instance
+$folder = folder('/path/to/folder');    //equivalent to Folder::instance('/path/to/folder')
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
