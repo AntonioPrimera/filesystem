@@ -16,10 +16,11 @@ namespace AntonioPrimera\FileSystem;
 abstract class FileSystemItem implements \Stringable
 {
 	public readonly string $originalPath;
+	public string $path;
 	
-	public function __construct(public string $path)
+	public function __construct(string $path)
 	{
-		$this->originalPath = $this->normalizePath($path);
+		$this->path = $this->originalPath = $this->normalizePath($path);
 	}
 	
 	public static function instance(string|self $path): static
