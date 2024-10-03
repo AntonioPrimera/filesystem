@@ -5,15 +5,15 @@
     "autoload": {
         "psr-4": {
             "AntonioPrimera\\FileSystem\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "AntonioPrimera\\FileSystem\\Tests\\": "tests/"
         },
         "files": [
             "src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AntonioPrimera\\FileSystem\\Tests\\": "tests/"
+        }
     },
     "authors": [
         {
