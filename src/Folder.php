@@ -4,6 +4,8 @@ namespace AntonioPrimera\FileSystem;
 
 use AntonioPrimera\FileSystem\Traits\CommonApiMethods;
 use AntonioPrimera\FileSystem\Traits\ZipsFolders;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Represents a folder in the file system
@@ -160,11 +162,13 @@ class Folder extends FileSystemItem
 			return $this;
 		
 		if ($deep) {
-			foreach ($this->getFiles() as $file)
-				$file->delete($dryRun);
-			
-			foreach ($this->getFolders() as $folder)
-				$folder->delete($deep, $dryRun);
+			$iterator = new RecursiveDirectoryIterator($this->path, RecursiveDirectoryIterator::SKIP_DOTS);
+			$files = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::CHILD_FIRST);
+			foreach($files as $file)
+				if ($file->isDir())
+					rmdir($file->getPathname());
+				else
+					unlink($file->getPathname());
 		}
 		
 		rmdir($this->path);
